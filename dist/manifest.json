@@ -1,0 +1,26 @@
+{
+    "manifest_version": 3,
+    "name": "simple-explainer",
+    "description": "Simple explainer for language learners to understand words or phrases.",
+    "version": "0.0.5",
+    "permissions": [
+        "storage",
+        "tabs",
+        "scripting",
+        "tts"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "action": {
+        "default_icon": "simple-explainer.png",
+        "default_popup": "popup.html"
+    },
+    "icons": {
+        "16": "simple-explainer.png",
+        "32": "simple-explainer.png",
+        "48": "simple-explainer.png",
+        "128": "simple-explainer.png"
+    }
+
+}
