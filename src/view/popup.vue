@@ -12,6 +12,7 @@
       <option value="OFF">🔇</option>
     </select>
     <button @click="saveAndReloadResponse()">✅</button>
+    <input v-model="AdditionalInstruction" placeholder="Additional Instructions" style="width:250px;"><br>
     <h1>{{ phrase }}</h1>
     <h2>{{ explanation }}</h2>
   </div>
@@ -28,6 +29,7 @@ export default {
       OpenAIAPIKey: '',
       ReplyLanguage: 'English',
       isReadAloud: 'ON',
+      AdditionalInstruction: '',
     }
   },
   methods: {
@@ -35,6 +37,7 @@ export default {
       await chrome.storage.sync.set({ 'OpenAIAPIKey': this.OpenAIAPIKey });
       await chrome.storage.sync.set({ 'ReplyLanguage': this.ReplyLanguage });
       await chrome.storage.sync.set({ 'isReadAloud': this.isReadAloud });
+      await chrome.storage.sync.set({ 'AdditionalInstruction': this.AdditionalInstruction });
       await this.reloadResponse();
     },
     async getSelectedText() {
@@ -44,7 +47,7 @@ export default {
         [{ result }] = await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           function: () => {
-            const selection = getSelection().toString();
+            const selection = getSelection().toString().trim();
             let context = getSelection().baseNode.parentNode.innerText;
             if (context.length > 200) {
               const index = context.indexOf(selection);
@@ -82,7 +85,7 @@ export default {
         ReplyInLanguage += `请用中文回答，开始：`;
       }
       
-      const promptExplainWord = `Please explain this phrase "${phrase}" using no more than 30 simple words. If the phrase was not a common phrase, please let me know. Better to use Vocabulary.com style of explanation.${languageCode == 'cmn' ? ' Please add PinYin to the phrase.' : ''} This word appears in this context: \n${context}\n---${ReplyInLanguage}\n`;
+      const promptExplainWord = `--Context--\n${context}\n--End--\nBased on the context above, please explain the phrase "${phrase}" using no more than 30 words.\n${languageCode == 'cmn' ? ' Please add PinYin to the phrase.' : ''} ${ReplyInLanguage}\n${this.AdditionalInstruction}\n`;
       console.log(promptExplainWord);
 
       const openai = new OpenAIApi(new Configuration({
@@ -103,7 +106,15 @@ export default {
 
       result = await chrome.storage.sync.get("ReplyLanguage");
       console.log(result);
-      this.ReplyLanguage = result.ReplyLanguage || "";
+      this.ReplyLanguage = result.ReplyLanguage || "English";
+
+      result = await chrome.storage.sync.get("isReadAloud");
+      console.log(result);
+      this.isReadAloud = result.isReadAloud || "ON";
+
+      result = await chrome.storage.sync.get("AdditionalInstruction");
+      console.log(result);
+      this.AdditionalInstruction = result.AdditionalInstruction || "";
 
       console.log(this.OpenAIAPIKey);
       const [phrase, context] = await this.getSelectedText();
