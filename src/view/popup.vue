@@ -85,7 +85,15 @@ export default {
         ReplyInLanguage += `请用中文回答，开始：`;
       }
       
-      const promptExplainWord = `--Context--\n${context}\n--End--\nBased on the context above, please explain the phrase "${phrase}" using no more than 30 words.\n${languageCode == 'cmn' ? ' Please add PinYin to the phrase.' : ''} ${ReplyInLanguage}\n${this.AdditionalInstruction}\n`;
+      const promptExplainWord = `\
+        --Context--\n\
+        ${context}\n\
+        --End--\n\
+        Based on the context above, please explain the phrase "${phrase}" using no more than 30 words.\n\
+        ${languageCode == 'cmn' ? `Please add PinYin to the phrase "${phrase}".` : ''}\
+        ${ReplyInLanguage}\n\
+        ${this.AdditionalInstruction}\n\
+        `;
       console.log(promptExplainWord);
 
       const openai = new OpenAIApi(new Configuration({
